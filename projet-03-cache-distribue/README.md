@@ -1,4 +1,4 @@
-# 🔴 Projet 3 — Cache distribué avec réplication
+#  Projet 3 — Cache distribué avec réplication
 
 > **Statut** : À construire | **Niveau** : Avancé | **Durée** : 6 semaines
 
