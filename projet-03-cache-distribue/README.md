@@ -1,6 +1,6 @@
 #  Projet 3 — Cache distribué avec réplication
 
-> **Statut** : À construire | **Niveau** : Avancé | **Durée** : 6 semaines
+>  **Niveau** : Avancé | **Durée** : 6 semaines
 
 ## Objectif
 Implémenter un cache clé-valeur distribué sur plusieurs nœuds, avec réplication
