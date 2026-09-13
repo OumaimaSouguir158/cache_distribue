@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  cache-primary:
+    build: .
+    ports: ["4000:4000"]
+    environment:
+      NODE_ID: primary
+      PORT: 4000
+      ROLE: primary
+      REPLICAS: "http://cache-replica-1:4001,http://cache-replica-2:4002"
+    networks: [cachenet]
+
+  cache-replica-1:
+    build: .
+    ports: ["4001:4001"]
+    environment:
+      NODE_ID: replica-1
+      PORT: 4001
+      ROLE: replica
+      PRIMARY_URL: http://cache-primary:4000
+    depends_on: [cache-primary]
+    networks: [cachenet]
+
+  cache-replica-2:
+    build: .
+    ports: ["4002:4002"]
+    environment:
+      NODE_ID: replica-2
+      PORT: 4002
+      ROLE: replica
+      PRIMARY_URL: http://cache-primary:4000
+    depends_on: [cache-primary]
+    networks: [cachenet]
+
+networks:
+  cachenet:
+    driver: bridge
