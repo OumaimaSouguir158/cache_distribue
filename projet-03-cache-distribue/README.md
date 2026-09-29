@@ -1,50 +1,52 @@
-#  Projet 3 — Cache distribué avec réplication
+# Project 3 — Distributed Cache with Replication
 
->  **Niveau** : Avancé | **Durée** : 6 semaines
+## Objective
 
-## Objectif
-Implémenter un cache clé-valeur distribué sur plusieurs nœuds, avec réplication
-et tolérance aux pannes basique.
+Implement a distributed key-value cache running across multiple nodes, with data replication and basic fault tolerance.
 
-## Architecture multi-nœuds
+The project demonstrates core distributed-systems concepts including:
+
+* Primary/replica architecture
+* Asynchronous replication
+* Eventual consistency
+* Node health monitoring
+* Failure handling
+* Data synchronization after node recovery
+* Inter-node HTTP communication
+
+## Architecture
+
+```text
+                         ┌─────────────────────────────┐
+                         │         Client API          │
+                         └──────────────┬──────────────┘
+                                        │ HTTP
+                         ┌──────────────▼──────────────┐
+                         │     Primary Node (:4000)    │
+                         │     In-memory cache          │
+                         │     Coordinates writes       │
+                         └──────┬────────────┬─────────┘
+                                │            │
+                         Replication    Replication
+                                │            │
+                  ┌─────────────▼──┐    ┌───▼─────────────┐
+                  │   Replica 1    │    │    Replica 2    │
+                  │     :4001      │    │      :4002      │
+                  │  In-memory     │    │   In-memory     │
+                  │     cache      │    │      cache      │
+                  └────────────────┘    └─────────────────┘
 ```
-          ┌─────────────────────────────┐
-          │         Client API          │
-          └──────────────┬──────────────┘
-                         │ HTTP
-          ┌──────────────▼──────────────┐
-          │     Node Primaire (:4000)   │  ← coordonne les écritures
-          │     cache en mémoire        │
-          └──────┬────────────┬─────────┘
-       Réplication│            │Réplication
-     ┌────────────▼──┐     ┌───▼────────────┐
-     │ Replica 1     │     │ Replica 2      │
-     │  (:4001)      │     │  (:4002)       │
-     └───────────────┘     └────────────────┘
-```
 
-## Démarrage
-```bash
-docker-compose up --build
-# Le cluster démarre avec 1 nœud primaire + 2 replicas
-```
+## How It Works
 
-## API REST
-```
-GET  /cache/:key          → Lire une valeur
-POST /cache/:key          → Écrire (corps : { "value": "...", "ttl": 60 })
-DEL  /cache/:key          → Supprimer
-GET  /health              → Santé du nœud
-GET  /nodes               → État du cluster
-```
+The system consists of one **primary node** and two **replica nodes**.
 
-## Question d'entretien
-> **Comment votre système se comporte-t-il si un nœud tombe en panne pendant une écriture ?**
->
-> L'écriture sur le primaire est confirmée en premier. La réplication vers les replicas est
-> asynchrone (eventual consistency). Si un replica est injoignable, le primaire le marque
-> comme "down" et continue à servir les requêtes. À la reconnexion, le replica demande un
-> full-sync pour rattraper les entrées manquées.
+### Primary Node
 
-## Ligne CV
-> « Cache distribué avec réplication — tolérance aux pannes, cohérence éventuelle, communication inter-nœuds. »
+The primary node:
+
+* Receives client requests.
+* Stores data in its local in-memory cache.
+* Coordinates write operations.
+* Asynchronously replicates changes to the replicas.
+* Monitors r
